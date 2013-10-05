@@ -23,10 +23,8 @@ def apply_script(protocol, connection, config):
   class survivalConnection(connection):
     
 	def spawn(self):
-		if survival_mode: # editted your code a little, hope you don't have a problem
+		if survival_mode:
 			self.weapon = RIFLE_WEAPON
-			return connection.spawn(self)
-		else:
-			return connection.spawn(self)
+		return connection.spawn(self)
   
   return protocol, survivalConnection
