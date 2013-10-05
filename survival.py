@@ -45,5 +45,15 @@ def apply_script(protocol, connection, config):
 		if survival_mode:
 			return False
 		return connection.on_weapon_set(self, weapon)
+		
+	def on_kill(self, killer, type, grenade): 
+		if survival_mode:
+			self.kick()
+			weapon_reload.player_id = killer.player_id
+			weapon_reload.reserve_ammo += 5
+			self.grenades += 1
+			self.weapon_object.reserve_ammo += 5
+			self.send_contain(weapon_reload)
+		return on_kill(self, killer, type, grenade)
   
   return protocol, survivalConnection
