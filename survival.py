@@ -1,5 +1,7 @@
+
+from commands import add, admin, alias
 from pyspades.constants import *
-from commnads import add, admin, alias
+from pyspades.server import weapon_reload
 
 survival_mode = True #Do you have a problem with this vlad?
 SURVIVAL_ENABLED = "Survival mode has been enabled"
@@ -8,6 +10,7 @@ SURVIVAL_DISABLED = "Survival mode has been disabled"
 @alias('ts') #Stands for toggle survival
 @admin
 def survival(connection):
+	global survival_mode
 	protocol = connection.protocol
 	survival_mode = not survival_mode
 	if survival_mode:
@@ -25,10 +28,22 @@ def apply_script(protocol, connection, config):
 	def spawn(self):
 		if survival_mode:
 			self.weapon = RIFLE_WEAPON
-			self.ammo = 0
 		return connection.spawn(self)
 	
+	def on_spawn(self, pos):
+		if survival_mode:
+			weapon_reload.player_id = self.player_id
+			weapon_reload.clip_ammo = 0
+			weapon_reload.reserve_ammo = 0
+			self.grenades = 0
+			self.weapon_object.clip_ammo = 0
+			self.weapon_object.reserve_ammo = 0
+			self.send_contained(weapon_reload)
+		return connection.on_spawn(self, pos)
+	
 	def on_weapon_set(self, weapon):
-		return False
+		if survival_mode:
+			return False
+		return connection.on_weapon_set(self, weapon)
   
   return protocol, survivalConnection
