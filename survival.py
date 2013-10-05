@@ -25,6 +25,10 @@ def apply_script(protocol, connection, config):
 	def spawn(self):
 		if survival_mode:
 			self.weapon = RIFLE_WEAPON
+			self.ammo = 0
 		return connection.spawn(self)
+	
+	def on_weapon_set(self, weapon):
+		return False
   
   return protocol, survivalConnection
