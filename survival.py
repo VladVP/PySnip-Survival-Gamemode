@@ -2,7 +2,7 @@ from commands import add, admin, alias
 from pyspades.constants import *
 from pyspades.server import weapon_reload
 
-kill_all = False #player.kill() just not works
+kill_ = False #player.kill() just not works
 survival_mode = True #Do you have a problem with this vlad?
 SURVIVAL_ENABLED = "Survival mode has been enabled"
 SURVIVAL_DISABLED = "Survival mode has been disabled"
@@ -23,8 +23,8 @@ def survival(connection):
 @alias('ka')
 @admin
 def killall(connection):
-        global kill_all
-        kill_all = True
+        global kill_
+        connection.kill_ = True
 add(killall)
 add(survival)
 	
@@ -32,6 +32,7 @@ add(survival)
 def apply_script(protocol, connection, config):
   
   class survivalConnection(connection):
+	connection.kill_ = False
     
 	def spawn(self):
 		if survival_mode:
@@ -40,11 +41,15 @@ def apply_script(protocol, connection, config):
 	
 	def on_spawn(self, pos):
 		if survival_mode:
-			weapon_reload.player_id = killer.player_id
-        		weapon_reload.clip_ammo = killer.weapon_object.current_ammo
-        		weapon_reload.reserve_ammo = killer.weapon_object.current_stock + 5
-        		killer.send_contained(weapon_reload)
+			weapon_reload.player_id = self.player_id
+			weapon_reload.clip_ammo = 0
+			weapon_reload.reserve_ammo = 0
+			self.grenades = 0
+			self.weapon_object.clip_ammo = 0
+			self.weapon_object.reserve_ammo = 0
+			self.send_contained(weapon_reload)
 		return connection.on_spawn(self, pos)
+
 	
 	def on_weapon_set(self, weapon):
 		if survival_mode:
@@ -52,11 +57,11 @@ def apply_script(protocol, connection, config):
 		return connection.on_weapon_set(self, weapon)
 		
 	def on_position_update(self):
-		global kill_all
-		if kill_all:
-			while(kill_all):
+		global kill_
+		if self.kill_:
+			while(self.kill_):
 				self.kill()
-				kill_all = False
+				self.kill_ = False
 		return connection.on_position_update(self)
 		
 	#def on_kill(self, killer, type, grenade): #FIX THIS
