@@ -31,13 +31,10 @@ def apply_script(protocol, connection, config):
 	
 	def on_spawn(self, pos):
 		if survival_mode:
-			weapon_reload.player_id = self.player_id
-			weapon_reload.clip_ammo = 0
-			weapon_reload.reserve_ammo = 0
-			self.grenades = 0
-			self.weapon_object.clip_ammo = 0
-			self.weapon_object.reserve_ammo = 0
-			self.send_contained(weapon_reload)
+			weapon_reload.player_id = killer.player_id
+        		weapon_reload.clip_ammo = killer.weapon_object.current_ammo
+        		weapon_reload.reserve_ammo = killer.weapon_object.current_stock + 5
+        		killer.send_contained(weapon_reload)
 		return connection.on_spawn(self, pos)
 	
 	def on_weapon_set(self, weapon):
@@ -49,8 +46,8 @@ def apply_script(protocol, connection, config):
 		if survival_mode:
 			self.kick()
 			weapon_reload.player_id = killer.player_id
-			weapon_reload.reserve_ammo = killer.weapon_object.reserve_ammo + 5
-			killer.grenades += 1
+        		weapon_reload.clip_ammo = killer.weapon_object.current_ammo
+        		weapon_reload.reserve_ammo = killer.weapon_object.current_stock + 5
 			killer.send_contained(weapon_reload)
 		return connection.on_kill(self, killer, type, grenade)
   
