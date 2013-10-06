@@ -1,4 +1,3 @@
-
 from commands import add, admin, alias
 from pyspades.constants import *
 from pyspades.server import weapon_reload
@@ -50,10 +49,9 @@ def apply_script(protocol, connection, config):
 		if survival_mode:
 			self.kick()
 			weapon_reload.player_id = killer.player_id
-			weapon_reload.reserve_ammo += 5
-			self.grenades += 1
-			self.weapon_object.reserve_ammo += 5
-			self.send_contain(weapon_reload)
-		return on_kill(self, killer, type, grenade)
+			weapon_reload.reserve_ammo = killer.weapon_object.reserve_ammo + 5
+			killer.grenades += 1
+			killer.send_contained(weapon_reload)
+		return connection.on_kill(self, killer, type, grenade)
   
   return protocol, survivalConnection
