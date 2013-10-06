@@ -17,10 +17,10 @@ def survival(connection):
 	survival_mode = not survival_mode
 	if survival_mode:
 		protocol.send_chat(SURVIVAL_ENABLED)
-		killall(connection) #WORKING
+		respawnall(connection) #WORKING
 	else:
 		protocol.send_chat(SURVIVAL_DISABLED)
-		killall(connection) #WORKING
+		respawnall(connection) #WORKING
 
 @alias('ra')
 @admin
@@ -29,18 +29,17 @@ def respawnall(connection):
         connection.respawn_ = True
 add(respawnall)
 add(survival)
-	
+
 
 def apply_script(protocol, connection, config):
   
-  class survivalConnection(connection):
-	connection.respawn_ = False
+  class survivalConnection(connection):     
     
 	def spawn(self):
 		if survival_mode:
 			self.weapon = RIFLE_WEAPON
 		return connection.spawn(self)
-	
+
 	def on_spawn(self, pos):
 		if survival_mode:
 			weapon_reload.player_id = self.player_id
@@ -51,13 +50,13 @@ def apply_script(protocol, connection, config):
 			self.weapon_object.reserve_ammo = 0
 			self.send_contained(weapon_reload)
 		return connection.on_spawn(self, pos)
-	
+
 	def on_weapon_set(self, weapon):
 		if survival_mode:
 			self.send_chat(NO_CHANGE)
 			return False
 		return connection.on_weapon_set(self, weapon)
-		
+
 	def on_position_update(self):
 		global respawn_
 		if self.respawn_:
@@ -65,13 +64,7 @@ def apply_script(protocol, connection, config):
 				self.kill()
 				self.respawn_ = False
 		return connection.on_position_update(self)
-	
-	def set_team(self, team):
-		if survival_mode:
-			self.send_chat(NO_CHANGE)
-			return False
-		return connection.set_team(self, team)
-		
+
 	#def on_kill(self, killer, type, grenade): #FIX THIS
 		#if survival_mode:
 			#self.kick()
