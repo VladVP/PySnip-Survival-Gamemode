@@ -2,10 +2,12 @@ from commands import add, admin, alias
 from pyspades.constants import *
 from pyspades.server import weapon_reload
 
-kill_ = False #player.kill() just not works
-survival_mode = True #Do you have a problem with this vlad?
+respawn_ = False
+survival_mode = True
+
 SURVIVAL_ENABLED = "Survival mode has been enabled"
 SURVIVAL_DISABLED = "Survival mode has been disabled"
+NO_CHANGE = "You can't do this as survival mode is enabled"
 
 @alias('ts') #Stands for toggle survival
 @admin
@@ -20,19 +22,19 @@ def survival(connection):
 		protocol.send_chat(SURVIVAL_DISABLED)
 		killall(connection) #WORKING
 
-@alias('ka')
+@alias('ra')
 @admin
-def killall(connection):
-        global kill_
-        connection.kill_ = True
-add(killall)
+def respawnall(connection):
+        global respawn_
+        connection.respawn_ = True
+add(respawnall)
 add(survival)
 	
 
 def apply_script(protocol, connection, config):
   
   class survivalConnection(connection):
-	connection.kill_ = False
+	connection.respawn_ = False
     
 	def spawn(self):
 		if survival_mode:
@@ -49,20 +51,26 @@ def apply_script(protocol, connection, config):
 			self.weapon_object.reserve_ammo = 0
 			self.send_contained(weapon_reload)
 		return connection.on_spawn(self, pos)
-
 	
 	def on_weapon_set(self, weapon):
 		if survival_mode:
+			self.send_chat(NO_CHANGE)
 			return False
 		return connection.on_weapon_set(self, weapon)
 		
 	def on_position_update(self):
-		global kill_
-		if self.kill_:
-			while(self.kill_):
+		global respawn_
+		if self.respawn_:
+			while(self.respawn_):
 				self.kill()
-				self.kill_ = False
+				self.respawn_ = False
 		return connection.on_position_update(self)
+	
+	def set_team(self, team):
+		if survival_mode:
+			self.send_chat(NO_CHANGE)
+			return False
+		return connection.set_team(self, team)
 		
 	#def on_kill(self, killer, type, grenade): #FIX THIS
 		#if survival_mode:
