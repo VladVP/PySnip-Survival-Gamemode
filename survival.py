@@ -56,6 +56,7 @@ def apply_script(protocol, connection, config):
 			self.send_chat(NO_CHANGE)
 			return False
 		return connection.on_weapon_set(self, weapon)
+<<<<<<< HEAD
 
 	def on_position_update(self):
 		global respawn_
@@ -73,5 +74,17 @@ def apply_script(protocol, connection, config):
         		#weapon_reload.reserve_ammo = killer.weapon_object.current_stock + 5
 			#killer.send_contained(weapon_reload)
 		#return connection.on_kill(self, killer, type, grenade)
+=======
+		
+	def on_kill(self, killer, type, grenade): 
+		if survival_mode:
+			self.kick()
+			killer.grenades += 1
+			killer.weapon_object.reserve_ammo += 5
+			weapon_reload.player_id = killer.player_id
+			weapon_reload.reserve_ammo = killer.weapon_object.reserve_ammo
+			killer.send_contained(weapon_reload)
+		return on_kill(self, killer, type, grenade)
+>>>>>>> optimisation
   
   return protocol, survivalConnection
